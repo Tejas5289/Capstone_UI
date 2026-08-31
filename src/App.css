@@ -1,0 +1,82 @@
+.chat-container { /* this is the main container for the chat, which is the main div element, that contains the messages and the input area, simply it is the chat box. located in the center of the page */
+  max-width: 600px;
+  margin: 50px auto;
+  border: 2px solid #004990;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 73, 144, 0.15);
+}
+
+.messages { /* this is the container for the messages, which is the div element that contains the messages. messages for the user and the assistant are stored in this div element. simply it is the messages area */
+  height: 400px;
+  overflow-y: auto;
+  padding: 20px;
+  background: #f8f9fa;
+}
+
+.message { /* this is the container for each message, which is the div element that contains the message text, simple it is the message box */
+  padding: 12px 16px;
+  margin: 10px 0;
+  border-radius: 8px;
+  max-width: 70%;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.message.user { /* this is the container for the user's message, which is the div element that contains the user's message text, simple it is the user's message box */
+  background: #004990;
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 2px;
+}
+
+.message.assistant { /* this is the container for the assistant's message, which is the div element that contains the assistant's message text, simple it is the assistant's message box */
+  background: #e9ecef;
+  color: #333;
+  margin-right: auto;
+  border-bottom-left-radius: 2px;
+}
+
+.input-area { /* this is the container for the input area, which is the div element that contains the input field and the send button, simply it is the input area. input field is to type the message and send button is to send the message */
+  display: flex;
+  padding: 15px;
+  border-top: 2px solid #004990;
+  background: white;
+  gap: 10px;
+}
+
+.input-area input { /* this is the input field, which is the input element that contains the message text, simply it is the input field. like a text box */
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #004990;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input-area input:focus { /* this is the input field, which is the input element that is focused, simply it is the input field when it is clicked, like when you click on the input field to type a message */
+  border-color: #003366;
+  box-shadow: 0 0 0 3px rgba(0, 73, 144, 0.1);
+}
+
+.input-area button { /* this is the send button, which is the button element that sends the message, simply it is the send button */
+  padding: 12px 24px;
+  background: #004990;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.input-area button:hover { /* this is the send button, which is the button element that is hovered, simply it is the send button when it is hovered */
+  background: #003366;
+}
+
+.input-area button:active { /* this is the send button, which is the button element that is active, simply it is the send button when it is clicked */
+  background: #002244;
+}
