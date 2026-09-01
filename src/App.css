@@ -1,82 +1,237 @@
-.chat-container { /* this is the main container for the chat, which is the main div element, that contains the messages and the input area, simply it is the chat box. located in the center of the page */
-  max-width: 600px;
-  margin: 50px auto;
-  border: 2px solid #004990;
-  border-radius: 10px;
-  overflow: hidden;
-  background: white;
-  box-shadow: 0 4px 12px rgba(0, 73, 144, 0.15);
+* {
+  box-sizing: border-box;
 }
 
-.messages { /* this is the container for the messages, which is the div element that contains the messages. messages for the user and the assistant are stored in this div element. simply it is the messages area */
-  height: 400px;
-  overflow-y: auto;
-  padding: 20px;
-  background: #f8f9fa;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #E5F2FA;
 }
 
-.message { /* this is the container for each message, which is the div element that contains the message text, simple it is the message box */
-  padding: 12px 16px;
-  margin: 10px 0;
-  border-radius: 8px;
-  max-width: 70%;
-  font-size: 14px;
-  line-height: 1.4;
+.page {
+  width: 100%;
+  min-height: 100vh;
+  background: #E5F2FA;
 }
 
-.message.user { /* this is the container for the user's message, which is the div element that contains the user's message text, simple it is the user's message box */
+.site-header {
+  width: 100%;
+  height: 70px;
+
   background: #004990;
-  color: white;
-  margin-left: auto;
-  border-bottom-right-radius: 2px;
-}
 
-.message.assistant { /* this is the container for the assistant's message, which is the div element that contains the assistant's message text, simple it is the assistant's message box */
-  background: #e9ecef;
-  color: #333;
-  margin-right: auto;
-  border-bottom-left-radius: 2px;
-}
-
-.input-area { /* this is the container for the input area, which is the div element that contains the input field and the send button, simply it is the input area. input field is to type the message and send button is to send the message */
   display: flex;
-  padding: 15px;
-  border-top: 2px solid #004990;
-  background: white;
-  gap: 10px;
+  align-items: center;
+
+  padding: 0 40px;
 }
 
-.input-area input { /* this is the input field, which is the input element that contains the message text, simply it is the input field. like a text box */
-  flex: 1;
-  padding: 12px 16px;
-  border: 2px solid #004990;
-  border-radius: 6px;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.input-area input:focus { /* this is the input field, which is the input element that is focused, simply it is the input field when it is clicked, like when you click on the input field to type a message */
-  border-color: #003366;
-  box-shadow: 0 0 0 3px rgba(0, 73, 144, 0.1);
-}
-
-.input-area button { /* this is the send button, which is the button element that sends the message, simply it is the send button */
-  padding: 12px 24px;
-  background: #004990;
+.site-logo {
   color: white;
+
+  font-size: 24px;
+  font-weight: bold;
+
+  letter-spacing: 1px;
+}
+
+.main-content {
+  width: 100%;
+  min-height: calc(100vh - 70px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 40px;
+}
+
+.chat-container {
+  width: 950px;
+  max-width: calc(100vw - 80px);
+  min-height: 650px;
+
+  background: linear-gradient(
+    145deg,
+    #012169,
+    #004990
+  );
+
+  border-radius: 18px;
+  padding: 30px;
+
+  display: flex;
+  flex-direction: column;
+
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  color: white;
+
+  margin-bottom: 60px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #4c9eb0;
+
+  color: white;
+}
+
+.status {
+  font-size: 13px;
+  color: #c4cedc;
+}
+
+.status-dot {
+  display: inline-block;
+
+  width: 8px;
+  height: 8px;
+
+  background: #54c2a0;
+
+  border-radius: 50%;
+
+  margin-right: 6px;
+}
+
+.chat-intro {
+  text-align: center;
+  color: white;
+
+  margin-bottom: 35px;
+}
+
+.chat-intro h1 {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.chat-intro p {
+  color: #b8c2d3;
+  font-size: 15px;
+}
+
+.messages {
+  flex: 1;
+
+  padding: 20px;
+
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 15px;
+}
+
+.message {
+  max-width: 70%;
+
+  padding: 13px 18px;
+
+  border-radius: 16px;
+
+  line-height: 1.5;
+
+  font-size: 15px;
+}
+
+.message.user {
+  align-self: flex-end;
+
+  background: #4c9eb0;
+
+  color: white;
+
+  border-bottom-right-radius: 4px;
+}
+
+.message.assistant {
+  align-self: flex-start;
+
+  background: #34415d;
+
+  color: #e8edf5;
+
+  border-bottom-left-radius: 4px;
+}
+
+.input-area {
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 25px;
+}
+
+.input-area input {
+  flex: 1;
+
+  padding: 16px 20px;
+
+  border-radius: 30px;
+
+  border: 1px solid #65718a;
+
+  background: rgba(255, 255, 255, 0.05);
+
+  color: white;
+
+  outline: none;
+
+  font-size: 15px;
+}
+
+.input-area input::placeholder {
+  color: #9da8bb;
+}
+
+.input-area input:focus {
+  border-color: #4c9eb0;
+}
+
+.input-area button {
+  padding: 0 25px;
+
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
+
+  border-radius: 30px;
+
+  background: #0072CE;
+
+  color: white;
+
+  font-weight: bold;
+
   cursor: pointer;
-  transition: background 0.2s;
+
+  transition: 0.2s;
 }
 
-.input-area button:hover { /* this is the send button, which is the button element that is hovered, simply it is the send button when it is hovered */
-  background: #003366;
-}
-
-.input-area button:active { /* this is the send button, which is the button element that is active, simply it is the send button when it is clicked */
-  background: #002244;
+.input-area button:hover {
+  background: #5aabba;
 }

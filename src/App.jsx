@@ -1,38 +1,88 @@
-import React, { useState} from 'react'; // this is a react hook
-import './App.css'; // this is a css file
+import React, { useState } from 'react';
+import './App.css';
 
 function App() {
-    const [messages, setMessages] = useState([]); //this is a state variable that stores the messages
-    const [input, setInput] = useState(''); //this is a state variable that stores the input
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
 
-    const sendMessage = async () => { //this is a function that sends a message
-      if (!input.trim()) return; // if it doesnt have any text, it returns. trim() removes whitespace from the input
-      const userMessage = { role: 'user', content: input }; // this creates a message object with the user's input
-      setMessages([...messages, userMessage]); // this adds the user's message to the messages array
-      setInput(''); // this clears the input, another words, sets it to an empty string
+  const sendMessage = async () => {
+    if (!input.trim()) return;
 
-      try { // try to send the message
-        const response = await fetch('http://localhost:3000/api/chat',{ // this fetches the api
-          method: 'POST', // POST does a post request to the api
-          headers: { 'Content-Type': 'application/json' }, // this sets the content type to json
-          body: JSON.stringify({message: input}) // this sends the message as a json string
-        });
-        const data = await response.json();   // this parses the response as json
-        setMessages(prev => [...prev, { role: 'assistant', content: data.reply}]); // this adds the assistant's message to the messages array
-      } catch (error) { // if there is an error
-        console.error('Error;', error); // log the error
-      }
+    const userMessage = {
+      role: 'user',
+      content: input
     };
 
-    const handleKeyPress = (e) => { // this is a function that handles the key press
-      if (e.key === 'Enter') sendMessage(); // if the key is enter, send the message
-    };
+    setMessages([...messages, userMessage]);
+    setInput('');
 
-    return (
-      <div className="chat-container">
+    try {
+      const response = await fetch('http://localhost:3000/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: input })
+      });
+
+      const data = await response.json();
+
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: data.reply
+        }
+      ]);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  };
+
+  return (
+<div className="page">
+
+  <header className="site-header">
+    <div className="site-logo">
+      LOWE'S
+    </div>
+  </header>
+
+  <main className="main-content">
+
+    <div className="chat-container">
+
+      <div className="chat-header">
+          <div className="brand">
+            <div className="logo">✦</div>
+            <span>CHATBOT</span>
+          </div>
+
+          <div className="status">
+            <span className="status-dot"></span>
+            Online
+          </div>
+        </div>
+
+        <div className="chat-intro">
+          <h1>How can I help you today?</h1>
+          <p>
+            Ask me anything about Launchpad and I'll do my best to help.
+          </p>
+        </div>
+
         <div className="messages">
-          {messages.map((msg, i ) => (
-            <div key={i} className={`message ${msg.role}`}>
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              className={`message ${msg.role}`}
+            >
               {msg.content}
             </div>
           ))}
@@ -44,14 +94,20 @@ function App() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder="Type a message..."
+            placeholder="Type your message..."
           />
-          <button onClick={sendMessage}>Send</button>
+
+          <button onClick={sendMessage}>
+            Send
+          </button>
         </div>
 
       </div>
-    );
+
+    </main>
+
+    </div>
+  );
 }
 
 export default App;
-
