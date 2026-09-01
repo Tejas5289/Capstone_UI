@@ -1,57 +1,202 @@
-import React, { useState} from 'react'; // this is a react hook
-import './App.css'; // this is a css file
+import React, { useState, useRef, useEffect } from 'react';
+import './App.css';
+import lowesLogo from './assets/loweslogo.png';
 
 function App() {
-    const [messages, setMessages] = useState([]); //this is a state variable that stores the messages
-    const [input, setInput] = useState(''); //this is a state variable that stores the input
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [hasStartedChat, setHasStartedChat] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
+  const [activeButton, setActiveButton] = useState('star');
+  const messagesEndRef = useRef(null);
 
-    const sendMessage = async () => { //this is a function that sends a message
-      if (!input.trim()) return; // if it doesnt have any text, it returns. trim() removes whitespace from the input
-      const userMessage = { role: 'user', content: input }; // this creates a message object with the user's input
-      setMessages([...messages, userMessage]); // this adds the user's message to the messages array
-      setInput(''); // this clears the input, another words, sets it to an empty string
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-      try { // try to send the message
-        const response = await fetch('http://localhost:3000/api/chat',{ // this fetches the api
-          method: 'POST', // POST does a post request to the api
-          headers: { 'Content-Type': 'application/json' }, // this sets the content type to json
-          body: JSON.stringify({message: input}) // this sends the message as a json string
-        });
-        const data = await response.json();   // this parses the response as json
-        setMessages(prev => [...prev, { role: 'assistant', content: data.reply}]); // this adds the assistant's message to the messages array
-      } catch (error) { // if there is an error
-        console.error('Error;', error); // log the error
-      }
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isThinking]);
+
+  const sendMessage = async (messageText = null) => {
+    const textToSend = messageText || input;
+    if (!textToSend.trim()) return;
+
+    const userMessage = {
+      role: 'user',
+      content: textToSend
     };
+    console.log(textToSend)
 
-    const handleKeyPress = (e) => { // this is a function that handles the key press
-      if (e.key === 'Enter') sendMessage(); // if the key is enter, send the message
-    };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setHasStartedChat(true);
+    setIsThinking(true);
 
-    return (
-      <div className="chat-container">
-        <div className="messages">
-          {messages.map((msg, i ) => (
-            <div key={i} className={`message ${msg.role}`}>
-              {msg.content}
+    try {
+      const response = await fetch('http://127.0.0.1:8000/generate', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ "question": textToSend, "variant": "concise", "top_k":3})
+
+      });
+
+      const data = await response.json();
+
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: data.answer
+        }
+      ]);
+    } catch (error) {
+      console.error('Error:', error);
+
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: 'Sorry, something went wrong.'
+        }
+      ]);
+    } finally {
+      setIsThinking(false);
+    }
+  };
+
+  const sendMessageWithText = (text) => {
+    sendMessage(text);
+  };
+
+  const startNewChat = () => {
+    setMessages([]);
+    setHasStartedChat(true);
+    setActiveButton('chat');
+  };
+
+  const resetToHome = () => {
+    setMessages([]);
+    setHasStartedChat(false);
+    setActiveButton('star');
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  };
+
+  return (
+    <div className="page">
+
+      <aside className="sidebar">
+        <div className="sidebar-logo">
+          <img src={lowesLogo} alt="Lowe's Logo" className="sidebar-logo-image" />
+        </div>
+
+        <div className="sidebar-buttons">
+          <button
+            className={`sidebar-button ${activeButton === 'star' ? 'active' : ''}`}
+            onClick={resetToHome}
+          >
+            ✦
+          </button>
+
+          <button
+            className={`sidebar-button ${activeButton === 'chat' ? 'active' : ''}`}
+            onClick={startNewChat}
+          >
+            💬
+          </button>
+        </div>
+
+      </aside>
+
+      <main className="main-content">
+
+        <section className="hero">
+
+          <div className="chat-status">
+            <span className="status-dot"></span>
+            Launchpad Assistant
+          </div>
+
+          {!hasStartedChat && (
+            <>
+              <h1>
+                How can I help you<br />
+                today?
+              </h1>
+
+              <p>
+                Ask me anything about Launchpad and I'll do my best to help.
+              </p>
+
+              <div className="quick-actions">
+                <button onClick={() => sendMessageWithText("What is Launchpad?")}>What is Launchpad?</button>
+                <button onClick={() => sendMessageWithText("How to apply?")}>How to apply?</button>
+                {/* <button>Common Questions</button> */}
+                {/* <button>Help Me</button> */}
+              </div>
+            </>
+          )}
+
+          <div className={`messages ${hasStartedChat ? 'messages-expanded' : ''}`}>
+            {messages.map((msg, i) => (
+              <div
+                key={i}
+                className={`message ${msg.role}`}
+              >
+                {msg.content}
+              </div>
+            ))}
+            {isThinking && (
+              <div className="message assistant thinking">
+                <div className="thinking-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="input-wrapper">
+
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyPress}
+              placeholder="Ask me anything..."
+            />
+
+            <div className="input-actions">
+              <button className="secondary-button">
+                Attach
+              </button>
+
+              <button
+                className="send-button"
+                onClick={sendMessage}
+              >
+                Send
+              </button>
             </div>
-          ))}
-        </div>
 
-        <div className="input-area">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyPress}
-            placeholder="Type a message..."
-          />
-          <button onClick={sendMessage}>Send</button>
-        </div>
+          </div>
 
-      </div>
-    );
+        </section>
+
+      </main>
+
+    </div>
+  );
 }
 
 export default App;
-
