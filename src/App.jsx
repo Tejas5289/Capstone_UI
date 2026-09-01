@@ -6,6 +6,8 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [hasStartedChat, setHasStartedChat] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
+  const [activeButton, setActiveButton] = useState('star');
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -14,27 +16,32 @@ function App() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isThinking]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+  const sendMessage = async (messageText = null) => {
+    const textToSend = messageText || input;
+    if (!textToSend.trim()) return;
 
     const userMessage = {
       role: 'user',
-      content: input
+      content: textToSend
     };
+    console.log(textToSend)
 
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setHasStartedChat(true);
+    setIsThinking(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/chat', {
+      const response = await fetch('http://127.0.0.1:8000/generate', {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ message: input })
+        body: JSON.stringify({ "question": textToSend, "variant": "concise", "top_k":3})
+
       });
 
       const data = await response.json();
@@ -43,7 +50,7 @@ function App() {
         ...prev,
         {
           role: 'assistant',
-          content: data.reply
+          content: data.answer
         }
       ]);
     } catch (error) {
@@ -56,7 +63,25 @@ function App() {
           content: 'Sorry, something went wrong.'
         }
       ]);
+    } finally {
+      setIsThinking(false);
     }
+  };
+
+  const sendMessageWithText = (text) => {
+    sendMessage(text);
+  };
+
+  const startNewChat = () => {
+    setMessages([]);
+    setHasStartedChat(true);
+    setActiveButton('chat');
+  };
+
+  const resetToHome = () => {
+    setMessages([]);
+    setHasStartedChat(false);
+    setActiveButton('star');
   };
 
   const handleKeyPress = (e) => {
@@ -73,21 +98,22 @@ function App() {
           <img src={lowesLogo} alt="Lowe's Logo" className="sidebar-logo-image" />
         </div>
 
-        <button className="sidebar-button active">
-          ✦
-        </button>
+        <div className="sidebar-buttons">
+          <button
+            className={`sidebar-button ${activeButton === 'star' ? 'active' : ''}`}
+            onClick={resetToHome}
+          >
+            ✦
+          </button>
 
-        <button className="sidebar-button">
-          💬
-        </button>
+          <button
+            className={`sidebar-button ${activeButton === 'chat' ? 'active' : ''}`}
+            onClick={startNewChat}
+          >
+            💬
+          </button>
+        </div>
 
-        {/* <button className="sidebar-button">
-          ⚙
-        </button> */}
-
-        <button className="sidebar-button sidebar-bottom">
-          ↪
-        </button>
       </aside>
 
       <main className="main-content">
@@ -111,8 +137,8 @@ function App() {
               </p>
 
               <div className="quick-actions">
-                <button>What is Launchpad?</button>
-                <button>How to apply?</button>
+                <button onClick={() => sendMessageWithText("What is Launchpad?")}>What is Launchpad?</button>
+                <button onClick={() => sendMessageWithText("How to apply?")}>How to apply?</button>
                 {/* <button>Common Questions</button> */}
                 {/* <button>Help Me</button> */}
               </div>
@@ -128,6 +154,15 @@ function App() {
                 {msg.content}
               </div>
             ))}
+            {isThinking && (
+              <div className="message assistant thinking">
+                <div className="thinking-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
 
