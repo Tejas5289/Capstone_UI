@@ -12,17 +12,20 @@ function App() {
       role: 'user',
       content: input
     };
+    console.log(input)
 
     setMessages([...messages, userMessage]);
     setInput('');
 
     try {
-      const response = await fetch('http://localhost:3000/api/chat', {
+      const response = await fetch('http://127.0.0.1:8000/generate', {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ message: input })
+        body: JSON.stringify({ "question": input, "variant": "concise", "top_k":3})
+        
       });
 
       const data = await response.json();
@@ -31,7 +34,7 @@ function App() {
         ...prev,
         {
           role: 'assistant',
-          content: data.reply
+          content: data.answer
         }
       ]);
     } catch (error) {
@@ -49,8 +52,10 @@ function App() {
 <div className="page">
 
   <header className="site-header">
-    <div className="site-logo">
-      LOWE'S
+    <div className= "side-nav">
+      <div className="site-logo">
+        <img id="logo" src="/LP_logo.png" alt="Lowes Logo" />
+      </div>
     </div>
   </header>
 
@@ -61,7 +66,7 @@ function App() {
       <div className="chat-header">
           <div className="brand">
             <div className="logo">✦</div>
-            <span>CHATBOT</span>
+            <span>LAUNCHPAD CHATBOT</span>
           </div>
 
           <div className="status">
