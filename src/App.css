@@ -400,10 +400,10 @@ body {
   color: #1f2937;
 
   border: 1px solid #dbe7f0;
-
   border-bottom-left-radius: 5px;
-
   text-align: left;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 .message-link {
