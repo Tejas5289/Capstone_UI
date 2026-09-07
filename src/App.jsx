@@ -102,7 +102,7 @@ function App() {
         },
         body: JSON.stringify({
           question: textToSend,
-          variant: "concise",
+          variant: "auto",
           top_k: 5
         })
 
@@ -393,6 +393,7 @@ function App() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyPress}
               placeholder="Ask me anything..."
             />
 
