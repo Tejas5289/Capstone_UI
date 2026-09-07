@@ -16,21 +16,6 @@ function App() {
   const [feedback, setFeedback] = useState({});
   const messagesEndRef = useRef(null);
 
-  // Load chats from localStorage on mount
-  useEffect(() => { // this is for loading chats from localStorage
-    const savedChats = localStorage.getItem('launchpad-chats'); // get chats from localStorage
-    if (savedChats) { // if there are chats in localStorage
-      setRecentChats(JSON.parse(savedChats)); // parse the chats and set them
-    }
-  }, []);
-
-  // Save chats to localStorage when they change
-  useEffect(() => {
-    if (recentChats.length > 0) {
-      localStorage.setItem('launchpad-chats', JSON.stringify(recentChats));
-    }
-  }, [recentChats]);
-
   // Save current chat messages when they change
   useEffect(() => {
     if (currentChatId && messages.length > 0) {
@@ -102,7 +87,7 @@ function App() {
         },
         body: JSON.stringify({
           question: textToSend,
-          variant: "auto",
+          variant: "concise",
           top_k: 5
         })
 
