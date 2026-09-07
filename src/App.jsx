@@ -8,12 +8,38 @@ function App() {
   const [hasStartedChat, setHasStartedChat] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [activeButton, setActiveButton] = useState('star');
-  const [recentChats, setRecentChats] = useState(['Chat 1', 'Chat 2', 'Chat 3']);
+  const [recentChats, setRecentChats] = useState([]);
+  const [currentChatId, setCurrentChatId] = useState(null);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const [editingChatIndex, setEditingChatIndex] = useState(null);
   const [editingChatName, setEditingChatName] = useState('');
   const [feedback, setFeedback] = useState({});
   const messagesEndRef = useRef(null);
+
+  // Load chats from localStorage on mount
+  useEffect(() => { // this is for loading chats from localStorage
+    const savedChats = localStorage.getItem('launchpad-chats'); // get chats from localStorage
+    if (savedChats) { // if there are chats in localStorage
+      setRecentChats(JSON.parse(savedChats)); // parse the chats and set them
+    }
+  }, []);
+
+  // Save chats to localStorage when they change
+  useEffect(() => {
+    if (recentChats.length > 0) {
+      localStorage.setItem('launchpad-chats', JSON.stringify(recentChats));
+    }
+  }, [recentChats]);
+
+  // Save current chat messages when they change
+  useEffect(() => {
+    if (currentChatId && messages.length > 0) {
+      const updatedChats = recentChats.map(chat => 
+        chat.id === currentChatId ? { ...chat, messages } : chat
+      );
+      setRecentChats(updatedChats);
+    }
+  }, [messages, currentChatId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -28,6 +54,19 @@ function App() {
     const textToSend = messageText || input;
     console.log('textToSend:', textToSend, 'type:', typeof textToSend);
     if (!textToSend || typeof textToSend !== 'string' || !textToSend.trim()) return;
+
+    // Create a new chat if none exists
+    if (!currentChatId) {
+      const newChat = {
+        id: Date.now().toString(),
+        name: `Chat ${recentChats.length + 1}`,
+        messages: [],
+        timestamp: new Date().toISOString()
+      };
+      setRecentChats(prev => [...prev, newChat]);
+      setCurrentChatId(newChat.id);
+      setMessages([]);
+    }
 
     // Block email address requests
     const emailKeywords = ['email', 'e-mail', 'mail address', 'email address', '@', 'contact email'];
@@ -61,10 +100,10 @@ function App() {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ 
-          question: textToSend, 
+        body: JSON.stringify({
+          question: textToSend,
           variant: "concise",
-          top_k: 3
+          top_k: 5
         })
 
       });
@@ -113,9 +152,27 @@ function App() {
   };
 
   const startNewChat = () => {
+    const newChat = {
+      id: Date.now().toString(),
+      name: `Chat ${recentChats.length + 1}`,
+      messages: [],
+      timestamp: new Date().toISOString()
+    };
+    setRecentChats([...recentChats, newChat]);
+    setCurrentChatId(newChat.id);
     setMessages([]);
     setHasStartedChat(true);
     setActiveButton('chat');
+  };
+
+  const loadChat = (chatId) => {
+    const chat = recentChats.find(c => c.id === chatId);
+    if (chat) {
+      setCurrentChatId(chatId);
+      setMessages(chat.messages || []);
+      setHasStartedChat(true);
+      setActiveButton('chat');
+    }
   };
 
   const resetToHome = () => {
@@ -133,12 +190,12 @@ function App() {
 
   const startEditingChat = (index, currentName) => {
     setEditingChatIndex(index);
-    setEditingChatName(currentName);
+    setEditingChatName(currentName || recentChats[index]?.name || '');
   };
 
   const saveChatName = (index) => {
     const updatedChats = [...recentChats];
-    updatedChats[index] = editingChatName;
+    updatedChats[index] = { ...updatedChats[index], name: editingChatName };
     setRecentChats(updatedChats);
     setEditingChatIndex(null);
     setEditingChatName('');
@@ -209,7 +266,7 @@ function App() {
               <h3 className="recent-chats-title">Recent Chats</h3>
               <ul className="recent-chats-list">
                 {recentChats.map((chat, index) => (
-                  <li key={index} className="recent-chat-item">
+                  <li key={chat.id} className="recent-chat-item">
                     {editingChatIndex === index ? (
                       <div className="chat-edit-wrapper">
                         <input
@@ -238,10 +295,10 @@ function App() {
                       </div>
                     ) : (
                       <div className="chat-name-wrapper">
-                        <span onClick={() => startEditingChat(index, chat)}>{chat}</span>
+                        <span onClick={() => loadChat(chat.id)}>{chat.name}</span>
                         <button 
                           className="chat-rename-btn"
-                          onClick={() => startEditingChat(index, chat)}
+                          onClick={() => startEditingChat(index, chat.name)}
                         >
                           ✎
                         </button>
